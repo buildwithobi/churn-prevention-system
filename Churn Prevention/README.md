@@ -95,14 +95,14 @@ streamlit run dashboards/churn_dashboard.py
 
 ## 📁 Project Structure
 churn-prevention/
-├── notebooks/              # 6 analysis notebooks
+├── notebooks/             # 6 analysis notebooks
 ├── dashboards/            # Streamlit application
 ├── data/                  # Generated datasets
 ├── models/                # Trained models
 ├── screenshots/           # Dashboard images
 ├── docs/                  # Case study & documentation
 ├── requirements.txt       # Python dependencies
-└── README.md             # This file
+└── README.md              # This file
 
 ```
 ---
