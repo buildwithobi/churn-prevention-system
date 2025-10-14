@@ -1,6 +1,6 @@
 # 🎯 Customer Churn Prevention System
 
-AI-powered machine learning system that predicts customer churn 45 days in advance with 87% accuracy.
+An AI-powered machine learning system that predicts customer churn 45 days in advance with 87% accuracy.
 
 ![Python](https://img.shields.io/badge/python-3.10-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
