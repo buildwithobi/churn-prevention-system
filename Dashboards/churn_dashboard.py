@@ -48,7 +48,7 @@ def load_data():
     """Load customer data"""
     try:
         # Get absolute path to data file
-        script_dir = Path(__file__).parent.resolve()
+        script_dir = Path(__file__).parent.parent.resolve()
         data_path = script_dir.parent / 'Datasets' / 'customer_churn_data.csv'
         
         df = pd.read_csv(data_path)
@@ -619,4 +619,4 @@ st.markdown("---")
 st.markdown("*Dashboard last updated: {}*".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
 
-print(df.columns)
+print(df.c
