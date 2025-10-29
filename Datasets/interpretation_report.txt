@@ -1,0 +1,43 @@
+
+╔══════════════════════════════════════════════════════════════════════╗
+║           MODEL INTERPRETATION & EXPLAINABILITY REPORT               ║
+╚══════════════════════════════════════════════════════════════════════╝
+
+MODEL INFORMATION:
+  • Model Type: Logistic Regression
+  • AUC Score: 1.0000
+  • Features: 44
+  • Samples Analyzed: 1,000
+
+TOP 5 MOST IMPORTANT FEATURES (GLOBAL):
+  1. tenure_days                         49.2829
+  33. login_feature_interaction           41.2018
+  31. engagement_tenure                   31.6946
+  4. session_duration_avg                11.3413
+  18. health_score                        10.7999
+
+PREDICTION DRIVERS:
+  • Primary churn drivers: logins_30d, estimated_ltv, engagement_tenure
+  • Primary retention factors: tenure_days, revenue_risk_score, value_realization
+
+INTERPRETABILITY BENEFITS:
+  ✓ Model decisions are explainable to stakeholders
+  ✓ Customer-specific interventions can be tailored
+  ✓ Feature engineering can be guided by SHAP insights
+  ✓ Compliance and audit requirements can be met
+  ✓ Trust in AI system increased through transparency
+
+BUSINESS APPLICATIONS:
+  1. Customer Success: Personalized intervention strategies
+  2. Product: Feature prioritization based on retention impact
+  3. Marketing: Target messaging based on risk factors
+  4. Executive: Clear explanation of churn drivers
+
+FILES CREATED:
+  • shap_summary_plot.png (feature impact overview)
+  • shap_importance_bar.png (feature ranking)
+  • shap_waterfall_case[1-3].png (individual explanations)
+  • shap_dependence_plots.png (feature relationships)
+  • shap_force_plot.html (interactive single prediction)
+  • shap_force_plot_multi.html (interactive multi-prediction)
+  • shap_interaction_plot.png (feature interactions)

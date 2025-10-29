@@ -104,24 +104,6 @@ churn-prevention/
 ├── requirements.txt       # Python dependencies
 └── README.md             # This file
 
-```
----
-
-```markdown
-## 📦 Data Files
-
-Due to GitHub size limits, data and model files are not included in this repository.
-
-**To generate data:**
-1. Run `01_data_generation.ipynb`
-2. This creates all necessary CSV files
-
-**To train model:**
-1. Run notebooks 1-5 in sequence
-2. This creates trained model files
-
-**All files regenerate in ~1.5 hours**
-
 ---
 
 # 📊 Results
@@ -171,14 +153,14 @@ Operational Gains:
 ---
 
 # 👤 About
-Created by: [Obioma Anyanwu]
+Created by: [Your Name]
 Aspiring Associate Product Manager | MS in Data Science, Texas Tech University
 Purpose: Portfolio project demonstrating ML product development skills
 Connect:
 
-📧 Email: obiaanyanwu@outlook.com
-💼 LinkedIn: linkedin.com/in/obioma-a-50316b198
-🐙 GitHub: @buildwithobi
+📧 Email: your.email@example.com
+💼 LinkedIn: linkedin.com/in/yourname
+🐙 GitHub: @yourusername
 
 ---
 

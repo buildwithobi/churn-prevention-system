@@ -1,0 +1,49 @@
+# Data files (too large for GitHub)
+data/*.csv
+data/*.txt
+data/*.xlsx
+
+# Model files (too large)
+models/*.pkl
+models/*.h5
+models/*.joblib
+
+# Large visualization files
+data/*.png
+data/*.jpg
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Environment files
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Streamlit
+.streamlit/secrets.toml
