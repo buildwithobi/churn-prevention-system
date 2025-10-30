@@ -47,9 +47,9 @@ st.markdown("""
 def load_data():
     """Load customer data"""
     try:
-        # Get absolute path to data file
+        # Get path to "Churn Prevention" folder
         script_dir = Path(__file__).parent.parent.resolve()
-        data_path = script_dir.parent / 'Datasets' / 'customer_churn_data.csv'
+        data_path = script_dir / 'Datasets' / 'customer_churn_data.csv'
         
         df = pd.read_csv(data_path)
         return df
@@ -72,12 +72,12 @@ def load_data():
 def load_models():
     """Load trained model and scaler"""
     try:
-        script_dir = Path(__file__).parent.resolve()
-        project_root = script_dir.parent
+        # Get path to "Churn Prevention" folder
+        script_dir = Path(__file__).parent.parent.resolve()
         
-        model = joblib.load(project_root / 'ML Models' / 'churn_model.pkl')
-        scaler = joblib.load(project_root / 'ML Models' / 'scaler.pkl')
-        model_info = joblib.load(project_root / 'ML Models' / 'model_info.pkl')
+        model = joblib.load(script_dir / 'ML Models' / 'churn_model.pkl')
+        scaler = joblib.load(script_dir / 'ML Models' / 'scaler.pkl')
+        model_info = joblib.load(script_dir / 'ML Models' / 'model_info.pkl')
         
         return model, scaler, model_info
         
