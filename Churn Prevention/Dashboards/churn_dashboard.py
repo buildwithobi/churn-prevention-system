@@ -90,19 +90,41 @@ def load_models():
         st.stop()
 
 ### Load Data
+### Load Data
 try:
     df = load_data()
     model, scaler, model_info = load_models()
     feature_cols = model_info['feature_columns']
-
+    
+    # DEBUG: Show what features the model expects
+    st.write("### 🔍 DEBUG: Model Feature Analysis")
+    st.write("**Model expects these features:**")
+    st.write(feature_cols)
+    st.write(f"Total features expected: {len(feature_cols)}")
+    
     ### Apply feature engineering
     df_processed = engineer_features(df)
-
+    
+    # DEBUG: Show what features we created
+    st.write("\n**Features we created:**")
+    st.write(df_processed.columns.tolist())
+    st.write(f"Total features created: {len(df_processed.columns)}")
+    
+    # DEBUG: Show missing features
+    missing_features = set(feature_cols) - set(df_processed.columns)
+    if missing_features:
+        st.error(f"❌ Missing {len(missing_features)} features:")
+        st.write(sorted(list(missing_features)))
+        st.stop()
+    
     ### Make predictions for all customers
     X = df_processed[feature_cols]
     churn_probabilities = model.predict_proba(X)[:, 1]
-    df_processed['churned'] = churn_probabilities * 100
-    df_processed['churned'] = (churn_probabilities > 0.5).astype(int)
+    df_processed['churn_risk_score'] = churn_probabilities * 100  # Probability as percentage
+    df_processed['churn_prediction'] = (churn_probabilities > 0.5).astype(int)  # Binary prediction
+    
+    # Use churn_risk_score throughout the dashboard (not 'churned')
+    df_processed['churned'] = df_processed['churn_risk_score']  # For backward compatibility
 
 except Exception as e:
     st.error(f"❌ Error occurred: {type(e).__name__}: {e}")
