@@ -43,6 +43,31 @@ def engineer_features(df):
     # Interaction features
     df['usage_satisfaction'] = df['features_used'] * df['ticket_sentiment']
     df['login_feature_interaction'] = df['logins_30d'] * df['features_used']
+
+    # Power user and engagement metrics
+    df['power_user_score'] = df['logins_30d'] * df['features_used']
+    df['engagement_velocity'] = df['features_used'] / (df['tenure_days'] / 30 + 1)
+    df['engagement_tenure'] = df['logins_30d'] * df['tenure_days']
+    
+    # Risk flags
+    df['dormancy_risk'] = (df['logins_30d'] < 5).astype(int)
+    df['low_engagement_risk'] = (df['features_used'] < 10).astype(int)
+    df['support_risk'] = (df['support_tickets_30d'] > 3).astype(int)
+    df['payment_risk'] = (df['payment_failures'] > 0).astype(int)
+    df['sentiment_risk'] = (df['ticket_sentiment'] < 0.3).astype(int)
+    
+    # Quality and satisfaction scores
+    df['support_quality_score'] = 1 - (df['support_tickets_30d'] / (df['support_tickets_30d'].max() + 1))
+    df['satisfaction_index'] = (df['ticket_sentiment'] + 1) / 2 * 0.5 + (df['net_promoter_score'] / 10) * 0.5
+    
+    # Value and revenue metrics
+    tier_value_map = {'free': 10, 'basic': 20, 'premium': 30, 'Free': 10, 'Basic': 20, 'Premium': 30}
+    df['value_realization'] = df['features_used'] / df['subscription_tier'].map(tier_value_map).fillna(20)
+    
+    df['revenue_risk_score'] = df['payment_failures'] * df['days_since_last_login']
+    
+    tier_price_map = {'free': 0, 'basic': 29, 'premium': 99, 'Free': 0, 'Basic': 29, 'Premium': 99}
+    df['estimated_ltv'] = (df['tenure_days'] / 30) * df['subscription_tier'].map(tier_price_map).fillna(29)
     
     # Subscription tier metrics
     df['subscription_tier_numeric'] = df['subscription_tier'].map({
