@@ -135,18 +135,18 @@ risk_threshold = st.sidebar.slider(
 )
 
 with st.sidebar.expander("🎯 Advanced Filters", expanded=False):
-### Subscription Tier Filter
-subscription_tier_filter = st.multiselect(
-    "Subscription Tier",
-    options = sorted(df['subscription_tier'].unique()),
-    default = df['subscription_tier'].unique()
+    ### Subscription Tier Filter
+    subscription_tier_filter = st.multiselect(
+        "Subscription Tier",
+        options = sorted(df['subscription_tier'].unique()),
+        default = df['subscription_tier'].unique()
 )
 
-### Company size filter
-company_size_filter = st.multiselect(
-    "Company Size",
-    options = sorted(df['company_size'].unique()),
-    default = df['company_size'].unique()
+    ### Company size filter
+    company_size_filter = st.multiselect(
+        "Company Size",
+        options = sorted(df['company_size'].unique()),
+        default = df['company_size'].unique()
 )
 
 ### Apply filters
