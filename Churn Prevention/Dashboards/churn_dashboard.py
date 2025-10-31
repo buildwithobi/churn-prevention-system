@@ -90,41 +90,19 @@ def load_models():
         st.stop()
 
 ### Load Data
-### Load Data
 try:
     df = load_data()
     model, scaler, model_info = load_models()
     feature_cols = model_info['feature_columns']
     
-    # DEBUG: Show what features the model expects
-    st.write("### 🔍 DEBUG: Model Feature Analysis")
-    st.write("**Model expects these features:**")
-    st.write(feature_cols)
-    st.write(f"Total features expected: {len(feature_cols)}")
-    
     ### Apply feature engineering
     df_processed = engineer_features(df)
-    
-    # DEBUG: Show what features we created
-    st.write("\n**Features we created:**")
-    st.write(df_processed.columns.tolist())
-    st.write(f"Total features created: {len(df_processed.columns)}")
-    
-    # DEBUG: Show missing features
-    missing_features = set(feature_cols) - set(df_processed.columns)
-    if missing_features:
-        st.error(f"❌ Missing {len(missing_features)} features:")
-        st.write(sorted(list(missing_features)))
-        st.stop()
     
     ### Make predictions for all customers
     X = df_processed[feature_cols]
     churn_probabilities = model.predict_proba(X)[:, 1]
     df_processed['churn_risk_score'] = churn_probabilities * 100  # Probability as percentage
     df_processed['churn_prediction'] = (churn_probabilities > 0.5).astype(int)  # Binary prediction
-    
-    # Use churn_risk_score throughout the dashboard (not 'churned')
-    df_processed['churned'] = df_processed['churn_risk_score']  # For backward compatibility
 
 except Exception as e:
     st.error(f"❌ Error occurred: {type(e).__name__}: {e}")
@@ -156,17 +134,18 @@ risk_threshold = st.sidebar.slider(
     help = "Customers above this threshold are flagged as high-risk"
 )
 
+with st.sidebar.expander("🎯 Advanced Filters", expanded=False):
 ### Subscription Tier Filter
-subscription_tier_filter = st.sidebar.multiselect(
+subscription_tier_filter = st.multiselect(
     "Subscription Tier",
-    options = df['subscription_tier'].unique(),
+    options = sorted(df['subscription_tier'].unique()),
     default = df['subscription_tier'].unique()
 )
 
 ### Company size filter
-company_size_filter = st.sidebar.multiselect(
+company_size_filter = st.multiselect(
     "Company Size",
-    options = df['company_size'].unique(),
+    options = sorted(df['company_size'].unique()),
     default = df['company_size'].unique()
 )
 
@@ -188,11 +167,11 @@ st.markdown("## 📊 Key Metrics")
 col1, col2, col3, col4, col5 = st.columns(5)
 
 total_customers = len(filtered_df)
-at_risk_customers = (filtered_df['churned'] >= risk_threshold).sum()
+at_risk_customers = (filtered_df['churn_risk_score'] >= risk_threshold).sum()
 at_risk_pct = (at_risk_customers / total_customers * 100) if total_customers > 0 else 0
 average_health = filtered_df['health_score'].mean()
 total_monthly_reoccuring_revenue = filtered_df['monthly_reoccuring_revenue'].sum()
-monthly_reoccuring_revenue_at_risk = filtered_df[filtered_df['churned'] >= risk_threshold]['monthly_reoccuring_revenue'].sum()
+monthly_reoccuring_revenue_at_risk = filtered_df[filtered_df['churn_risk_score'] >= risk_threshold]['monthly_reoccuring_revenue'].sum()
 
 with col1:
     st.metric("Total Customers", f"{total_customers:,}")
@@ -203,7 +182,7 @@ with col2:
               delta_color="inverse")
 
 with col3:
-    st.metric("Average Health Score", f"{average_health:.1f}/100") if average_health > 0 else "N/A"
+    st.metric("Average Health Score", f"{average_health:.1f}/100")
 
 with col4:
     st.metric("Total Monthly Reoccuring Revenue", f"${total_monthly_reoccuring_revenue:,.0f}")
@@ -221,19 +200,19 @@ st.markdown("---")
 
 st.markdown("## 🚨 High-Risk Customers Requiring Immediate Attention")
 
-high_risk_df = filtered_df[filtered_df['churned'] >= risk_threshold].copy()
-high_risk_df = high_risk_df.sort_values('churned', ascending=False)
+high_risk_df = filtered_df[filtered_df['churn_risk_score'] >= risk_threshold].copy()
+high_risk_df = high_risk_df.sort_values('churn_risk_score', ascending=False)
 
 if len(high_risk_df) > 0:
     ### Prepare display columns
     # display_df = high_risk_df[[
-    display_cols = ['customer_id', 'subscription_tier', 'monthly_reoccuring_revenue', 'churned',
+    display_cols = ['customer_id', 'subscription_tier', 'monthly_reoccuring_revenue', 'churn_risk_score',
                     'health_score', 'days_since_last_login', 'support_tickets_30d',
                     'logins_30d', 'payment_failures']
     display_df = high_risk_df[display_cols].head(20).copy()
     
     ### Format columns
-    display_df['churned'] = display_df['churned'].round(1)
+    display_df['churn_risk_score'] = display_df['churn_risk_score'].round(1)
     display_df['health_score'] = display_df['health_score'].round(1)
     display_df['monthly_reoccuring_revenue'] = display_df['monthly_reoccuring_revenue'].apply(lambda x: f'${x:.0f}')
     
@@ -274,10 +253,10 @@ with col1:
     ### Risk score distribution
     fig = px.histogram(
         filtered_df,
-        x = 'churned',
+        x = 'churn_risk_score',
         nbins = 50,
         title = "Distribution of Churn Risk Scores",
-        labels = {'churned': 'Churn Risk Score (%)'},
+        labels = {'churn_risk_score': 'Churn Risk Score (%)'},
         color_discrete_sequence = ['#1f77b4']
     )
     fig.add_vline(x = risk_threshold, line_dash = "dash", line_color = "red",
@@ -289,7 +268,7 @@ with col1:
 with col2:
     ### Risk by subscription tier
     risk_by_subscription_tier = filtered_df.groupby('subscription_tier').agg({
-        'churned': 'mean',
+        'churn_risk_score': 'mean',
         'customer_id': 'count'
     }).reset_index()
     risk_by_subscription_tier.columns = ['Subscription Tier', 'Average Risk Score', 'Customer Count']
@@ -331,12 +310,12 @@ else:
 fig = px.scatter(
     filtered_df,
     x = x_col,
-    y = 'churned',
+    y = 'churn_risk_score',
     size = 'monthly_reoccuring_revenue',
     color = 'subscription_tier',
     hover_data = ['customer_id', 'logins_30d', 'support_tickets_30d', 'days_since_last_login'],
     title = "Customer Health Score vs Churn Risk (bubble size = Monthly Reoccuring Revenue)",
-    labels = {x_col : x_label, 'churned': 'Churn Risk Score (%)'},
+    labels = {x_col : x_label, 'churn_risk_score': 'Churn Risk Score (%)'},
     color_discrete_sequence = px.colors.qualitative.Set2
 )
 
@@ -364,9 +343,27 @@ st.markdown("---")
 
 st.markdown("## 🔍 Key Churn Indicators")
 
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([1, 2])
 
 with col1:
+    st.markdown("### Key Insights")
+    st.markdown("""
+    **High Risk Indicators:**
+    - 🔴 Days since last login > 14
+    - 🔴 Logins < 5 per month
+    - 🔴 Support tickets > 3
+    - 🔴 Payment failures > 0
+    - 🔴 Low engagement score
+    - 🔴 Poor sentiment scores
+    
+    **Protective Factors:**
+    - 🟢 Regular feature usage
+    - 🟢 High NPS score
+    - 🟢 Premium tier
+    - 🟢 Long tenure
+    """)
+
+with col2:
     ### Feature importance (if available)
     if hasattr(model, 'feature_importances_'):
         feature_importance = pd.DataFrame({
@@ -387,24 +384,6 @@ with col1:
         fig.update_layout(showlegend = False, yaxis = {'categoryorder':'total ascending'})
         st.plotly_chart(fig, use_container_width = True)
 
-with col2:
-    st.markdown("### Key Insights")
-    st.markdown("""
-    **High Risk Indicators:**
-    - 🔴 Days since last login > 14
-    - 🔴 Logins < 5 per month
-    - 🔴 Support tickets > 3
-    - 🔴 Payment failures > 0
-    - 🔴 Low engagement score
-    - 🔴 Poor sentiment scores
-    
-    **Protective Factors:**
-    - 🟢 Regular feature usage
-    - 🟢 High NPS score
-    - 🟢 Premium tier
-    - 🟢 Long tenure
-    """)
-
 st.markdown("---")
 
 ### =============================================================================
@@ -414,11 +393,11 @@ st.markdown("---")
 st.markdown("## 🔎 Individual Customer Deep Dive")
 
 ### Customer selector
-customer_list = filtered_df.sort_values('churned', ascending=False)['customer_id'].tolist()
+customer_list = filtered_df.sort_values('churn_risk_score', ascending=False)['customer_id'].tolist()
 selected_customer = st.selectbox(
     "Select Customer for Detailed Analysis",
     options=customer_list,
-    format_func=lambda x: f"{x} (Risk: {filtered_df[filtered_df['customer_id']==x]['churned'].values[0]:.1f}%)"
+    format_func=lambda x: f"{x} (Risk: {filtered_df[filtered_df['customer_id']==x]['churn_risk_score'].values[0]:.1f}%)"
 )
 
 if selected_customer:
@@ -428,8 +407,8 @@ if selected_customer:
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        risk_color = "🔴" if customer_data['churned'] >= risk_threshold else "🟢"
-        st.metric(f"{risk_color} Churn Risk", f"{customer_data['churned']:.1f}%")
+        risk_color = "🔴" if customer_data['churn_risk_score'] >= risk_threshold else "🟢"
+        st.metric(f"{risk_color} Churn Risk", f"{customer_data['churn_risk_score']:.1f}%")
         st.metric("Health Score", f"{customer_data['health_score']:.1f}/100")
     
     with col2:
@@ -500,7 +479,7 @@ if selected_customer:
                             "Provide personalized onboarding session within 1 week"))
         priority_count['🟠 HIGH'] += 1
     
-    if customer_data['churned'] > 75 and customer_data['monthly_reoccuring_revenue'] > 50:
+    if customer_data['churn_risk_score'] > 75 and customer_data['monthly_reoccuring_revenue'] > 50:
         interventions.append(("🟠 HIGH", "Retention Offer", 
                             "Consider special pricing or feature upgrade within 2 days"))
         priority_count['🟠 HIGH'] += 1
@@ -546,16 +525,15 @@ with col1:
 
 with col2:
     total_predicted_churn = df_processed['churn_prediction'].sum()
-    actual_churn = df_processed['churned'].sum()
     st.metric("Customers Flagged", f"{total_predicted_churn:,}")
-    st.metric("Actual Churners", f"{actual_churn:,}")
-
-with col3:
-    if actual_churn > 0:
-        detection_rate = (df_processed['churn_prediction'] & df_processed['churned']).sum() / actual_churn
-        st.metric("Detection Rate", f"{detection_rate*100:.1f}%")
     st.metric("Total Features", len(feature_cols))
 
+with col3:
+    avg_risk = df_processed['churn_risk_score'].mean()
+    high_risk_count = (df_processed['churn_risk_score'] >= 70) .sum()
+    st.metric("Average Risk SCore", f"{avg_risk:.1f}%")
+    st.metric("High Risk Customers", f"{high_risk_count:,}")
+    
 ### Model update info
 st.info("""
 📅 **Model Training Date:** September 2024  
@@ -576,7 +554,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     ### Export all predictions
     export_df = filtered_df[['customer_id', 'subscription_tier', 'monthly_reoccuring_revenue', 
-                             'churned', 'health_score', 'churned']]
+                             'churn_risk_score', 'health_score', 'churn_risk_score']]
     csv_all = export_df.to_csv(index=False)
     st.download_button(
         label="📥 Export All Customer Scores",
@@ -600,9 +578,9 @@ with col3:
     ### Export intervention list
     if len(high_risk_df) > 0:
         intervention_df = high_risk_df[['customer_id', 'subscription_tier', 'monthly_reoccuring_revenue', 
-                                       'churned', 'days_since_last_login',
+                                       'churn_risk_score', 'days_since_last_login',
                                        'support_tickets_30d']].head(50)
-        intervention_df['priority'] = intervention_df['churned'].apply(
+        intervention_df['priority'] = intervention_df['churn_risk_score'].apply(
             lambda x: 'CRITICAL' if x > 85 else 'HIGH' if x > 70 else 'MEDIUM'
         )
         csv_interventions = intervention_df.to_csv(index=False)
