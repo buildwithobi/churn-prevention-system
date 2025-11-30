@@ -6,7 +6,7 @@ An AI-powered machine learning system that predicts customer churn 45 days in ad
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-complete-success.svg)
 
-![App For Visualization] (https://churn-prevention-system.streamlit.app/)
+Link To App: (https://churn-prevention-system.streamlit.app/)
 
 
 ---
