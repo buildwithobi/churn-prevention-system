@@ -6,13 +6,14 @@ An AI-powered machine learning system that predicts customer churn 45 days in ad
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Status](https://img.shields.io/badge/status-complete-success.svg)
 
+Link To App: https://churn-prevention-system.streamlit.app/
 ---
 
 ## 📋 Overview
 
 **The Problem:** Subscription businesses lose 20-30% of customers annually, costing millions in revenue.
 
-**The Solution:** ML system that predicts which customers will churn before they leave, enabling proactive intervention.
+**The Solution:** A Machine Learning (ML) system that predicts which customers will churn before they leave, enabling proactive intervention.
 
 **Impact:**
 - 87% prediction accuracy (AUC-ROC)
